@@ -31,6 +31,7 @@ DEBUG = bool(int(os.getenv('DEBUG', 1)))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
+AUTH_USER_MODEL = 'account.Account'
 
 # Application definition
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'apps.v1.account',
 ]
 
 MIDDLEWARE = [
@@ -131,6 +133,14 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+# Password hasher
+TIME_COST = os.getenv("TIME_COST", 2)
+MEMORY_COST = os.getenv("MEMORY_COST", 512)
+PARALLELISM = os.getenv("PARALLELISM", 2)
+PASSWORD_HASHERS = [
+    'apps.v1.account.hashers.CustomArgon2PasswordHasher',
 ]
 
 
