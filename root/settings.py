@@ -31,10 +31,9 @@ DEBUG = bool(int(os.getenv('DEBUG', 1)))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
-AUTH_USER_MODEL = 'account.Account'
+AUTH_USER_MODEL = 'myauth.User'
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,7 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'apps.v1.account',
+    'apps.v1.myauth',
+    'apps.v1.common',
+    'apps.v1.medical_operator',
+    'apps.v1.health_institution',
+    'apps.v1.area',
 ]
 
 MIDDLEWARE = [
@@ -136,11 +139,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Password hasher
-TIME_COST = os.getenv("TIME_COST", 2)
-MEMORY_COST = os.getenv("MEMORY_COST", 512)
-PARALLELISM = os.getenv("PARALLELISM", 2)
 PASSWORD_HASHERS = [
-    'apps.v1.account.hashers.CustomArgon2PasswordHasher',
+    'apps.v1.myauth.hashers.CustomArgon2PasswordHasher',
 ]
 
 

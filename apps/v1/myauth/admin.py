@@ -1,12 +1,12 @@
 # Register your models here.
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import Account
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from .models import User
 
-class AccountAdmin(UserAdmin):
-    model = Account
-    list_display = ('email', 'is_staff', 'is_active',)
-    list_filter = ('email', 'is_staff', 'is_active',)
+class UserAdmin(DjangoUserAdmin):
+    model = User
+    list_display = ('email', 'name', 'is_staff', 'is_active',)
+    list_filter = ('email', 'name', 'is_staff', 'is_active',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Permissions', {'fields': ('is_staff', 'is_active')}),
@@ -20,4 +20,4 @@ class AccountAdmin(UserAdmin):
     search_fields = ('email',)
     ordering = ('email',)
 
-admin.site.register(Account, AccountAdmin)
+admin.site.register(User, UserAdmin)
