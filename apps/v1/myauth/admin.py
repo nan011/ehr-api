@@ -1,7 +1,10 @@
 # Register your models here.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from .models import User
+from rest_framework_api_key.admin import ApiKeyAdmin
+from rest_framework_api_key.models import APIKey
+
+from .models import User, Token
 
 class UserAdmin(DjangoUserAdmin):
     model = User
@@ -21,3 +24,21 @@ class UserAdmin(DjangoUserAdmin):
     ordering = ('email',)
 
 admin.site.register(User, UserAdmin)
+
+# Override API Key admin
+class MyApiKeyAdmin(ApiKeyAdmin):
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+admin.site.unregister(APIKey)
+admin.site.register(APIKey, MyApiKeyAdmin)
+
+
+class TokenAdmin(admin.ModelAdmin):
+    list_display = ('key', 'user', 'created')
+    fields = ('user',)
+    ordering = ('-created',)
+
+
+admin.site.register(Token, TokenAdmin)
