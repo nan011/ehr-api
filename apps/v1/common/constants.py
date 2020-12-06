@@ -1,4 +1,4 @@
-BASE_OUTPUT_MORE_EXCLUDE = (
+BASE_EXCLUDE = (
     'created_at',
     'updated_at',
 )

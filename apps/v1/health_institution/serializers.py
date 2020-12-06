@@ -6,12 +6,12 @@ from .models import HealthInstitution
 from apps.v1.area.serializers import CitySerializer
 from apps.v1.area.models import Province, City
 from apps.v1.common.tools import convert_to_camel_case
-from apps.v1.common.constants import BASE_OUTPUT_MORE_EXCLUDE
+from apps.v1.common.constants import BASE_EXCLUDE
 
 class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Province
-        exclude = BASE_OUTPUT_MORE_EXCLUDE
+        exclude = BASE_EXCLUDE
 
 
 class HealthInstitutionSerializer(serializers.ModelSerializer):
@@ -22,8 +22,8 @@ class HealthInstitutionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HealthInstitution
-        exclude = BASE_OUTPUT_MORE_EXCLUDE
-         
+        exclude = BASE_EXCLUDE
+
     def create(self, validated_data):
         ModelClass = self.Meta.model
         
