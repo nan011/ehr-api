@@ -27,6 +27,8 @@ class UserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
+        # for field_name in list(extra_fields.keys()):
+        #     setattr(user, field_name, extra_fields.pop(field_name))
         user.save()
         return user
 
