@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework_api_key.permissions import HasAPIAccess
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
 from .models import HealthInstitution
 from .serializers import HealthInstitutionSerializer
