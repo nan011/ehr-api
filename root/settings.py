@@ -72,7 +72,7 @@ REST_FRAMEWORK = {
     # ],
     'DEFAULT_PAGINATION_CLASS': 'apps.v1.common.pagination.DefaultLimitOffsetPagination',
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'apps.v1.myauth.auths.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework_api_key.permissions.HasAPIAccess',
