@@ -20,7 +20,10 @@ class UserManager(BaseUserManager):
         """
         if not email:
             raise ValueError(_('The Email must be set'))
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', False)
         extra_fields.setdefault('is_active', False)
+
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -46,11 +49,12 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractUser):
+    id = None
     username = None
     first_name = None
     last_name = None
     name = models.CharField(_('name'), max_length = 255)
-    email = models.EmailField(_('email address'), unique = True)
+    email = models.EmailField(_('email address'), unique = True, primary_key = True)
 
     class Role(models.IntegerChoices):
         UNKNOWN = 0, _('Unknown')
