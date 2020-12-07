@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'apps.v1.medical_operator',
     'apps.v1.health_institution',
     'apps.v1.area',
+    'apps.v1.patient',
 ]
 
 MIDDLEWARE = [
