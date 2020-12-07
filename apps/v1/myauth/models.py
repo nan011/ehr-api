@@ -27,8 +27,6 @@ class UserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
-        # for field_name in list(extra_fields.keys()):
-        #     setattr(user, field_name, extra_fields.pop(field_name))
         user.save()
         return user
 
@@ -46,7 +44,7 @@ class UserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_superuser=True.'))
 
         # Admin
-        extra_fields['role'] = 1
+        extra_fields['role'] = User.Role.ADMIN
 
         return self.create_user(email, password, **extra_fields)
 
