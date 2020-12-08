@@ -1,34 +1,21 @@
-import sys
-import re
-
 from rest_framework import serializers
 
-from apps.v1.myauth.constants import USER_FIELDS_EXCLUDE
-from apps.v1.health_institution.models import HealthInstitution
 from apps.v1.common.constants import BASE_EXCLUDE
-from apps.v1.common.tools import convert_to_camel_case
-from apps.v1.medicine.serializers import MedicineSerializer
-from .models import Patient
+from apps.v1.patient.models import Patient
+from .models import MedicineType, Medicine
 
-class HealthInstitutionSerializer(serializers.ModelSerializer):
+class MedicineTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = HealthInstitution
+        model = MedicineType
         exclude = BASE_EXCLUDE
 
-class PatientSerializer(serializers.ModelSerializer):
-    health_institution_id = serializers.UUIDField(write_only=True)
-    health_institution = HealthInstitutionSerializer(many=False, read_only=True)
-    medicines = MedicineSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = Patient
-        exclude = USER_FIELDS_EXCLUDE
+class MedicineSerializer(serializers.ModelSerializer):
+    patient_id = serializers.EmailField(write_only=True)
+    patient = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
 
-        extra_kwargs = {
-            'password': {
-                'write_only': True,
-            }
-        }
+    class Meta:
+        model = Medicine
+        exclude = BASE_EXCLUDE
 
     def create(self, validated_data):
         ModelClass = self.Meta.model
@@ -48,7 +35,7 @@ class PatientSerializer(serializers.ModelSerializer):
                 serializer_field.is_valid(raise_exception = True)
                 validated_data[field_name] = serializer_field.save()
         
-        return self.Meta.model.objects.create_user(**validated_data)
+        return self.Meta.model.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         # Custom
@@ -83,21 +70,3 @@ class PatientSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
-
-    def to_representation(self, instance, *args, **kwargs):
-        representation = {
-            'role': {
-                'code': instance.role,
-                'label': instance.get_role_display(),
-            },
-            'physical_activity_type': {
-                'code': instance.physical_activity_type,
-                'label': instance.get_physical_activity_type_display(),
-            }
-        }
-
-        return {
-            **super().to_representation(instance, *args, **kwargs),
-            **representation,
-        }
-    

@@ -17,6 +17,7 @@ class UserManager(UserManager):
         return user
 
 class Patient(User):
+    objects = UserManager()
     nik = models.CharField(max_length=16)
 
     class PhysicalActivityType(models.IntegerChoices):
