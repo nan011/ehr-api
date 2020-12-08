@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.exceptions import APIException
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_api_key.permissions import HasAPIAccess
 
-from apps.v1.myauth.models import User
 from apps.v1.common.tools import get_object_or_none
+from apps.v1.myauth.models import User
+from apps.v1.patient.models import Patient
 from .models import HealthRecord
 from .permissions import AuthorityPermission, RedeemPermission
 from .serializers import HealthRecordSerializer
@@ -44,8 +46,13 @@ class HealthRecordViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.user.role == User.Role.PATIENT:
             return self.queryset.filter(patient=self.request.user)
-        else:
-            return self.queryset.filter(patient__health_institution=self.request.user.health_institution)
+        elif self.request.user.role == User.Role.OPERATOR:
+            patients_in_cluster = Patient.objects.filter(
+                health_institution=self.request.user.operator.health_institution,
+            )
+            print()
+            return self.queryset.filter(patient__in=patients_in_cluster)
+        raise APIException("User role must be patient or operator")
 
     def partial_update(self, *args, **kwargs):
         return Response(status = status.HTTP_405_METHOD_NOT_ALLOWED)
