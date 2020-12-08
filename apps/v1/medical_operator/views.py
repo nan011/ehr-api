@@ -7,7 +7,7 @@ from apps.v1.common.tools import get_user_or_none
 from apps.v1.myauth.models import User
 from .serializers import OperatorSerializer
 from .models import Operator
-from .permissions import AuthorityPermission, DeletePermission
+from .permissions import AuthorityPermission
 
 # Create your views here.
 class OperatorViewSet(viewsets.ModelViewSet):
@@ -17,14 +17,10 @@ class OperatorViewSet(viewsets.ModelViewSet):
     permission_classes = [
         HasAPIAccess,
         AuthorityPermission,
-        DeletePermission,
     ]
 
     def get_queryset(self):
         return self.queryset
-
-    def list(self, request):
-        return super().list(request)
 
     def retrieve(self, request, pk, *args, **kwargs):
         if pk.lower() == 'me':
