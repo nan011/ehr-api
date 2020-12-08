@@ -51,7 +51,5 @@ class OperatorViewSet(viewsets.ModelViewSet):
             self.kwargs['pk'] = user_id
         else:
             self.kwargs['pk'] = pk
-        
-        print(self.kwargs['pk'])
 
         return super().partial_update(request, *args, **kwargs)

@@ -50,7 +50,6 @@ class HealthRecordViewSet(viewsets.ModelViewSet):
             patients_in_cluster = Patient.objects.filter(
                 health_institution=self.request.user.operator.health_institution,
             )
-            print()
             return self.queryset.filter(patient__in=patients_in_cluster)
         raise APIException("User role must be patient or operator")
 
