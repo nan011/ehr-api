@@ -90,11 +90,10 @@ def set_role(sender, instance, *args, **kwargs):
     return instance
 
 
-@receiver(models.signals.pre_delete, sender=Admin)
-def remove_role(sender, instance, *args, **kwargs):
-    instance.account.role = Account.Role.UNKNOWN
-    instance.account.save()
-    return instance
+@receiver(models.signals.post_delete, sender=Admin)
+def remove_account(sender, instance, *args, **kwargs):
+    if instance != None:
+        instance.account.delete()
 
 class Token(models.Model):
     """
