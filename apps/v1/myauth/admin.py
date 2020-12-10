@@ -4,26 +4,28 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from rest_framework_api_key.admin import ApiKeyAdmin
 from rest_framework_api_key.models import APIKey
 
-from .models import User, Token
+from .models import Account, Admin, Token
 
 class UserAdmin(DjangoUserAdmin):
-    model = User
-    list_display = ('email', 'name', 'is_staff', 'is_active',)
-    list_filter = ('email', 'name', 'is_staff', 'is_active',)
+    model = Account
+    list_display = ('email', 'name', 'role', 'is_active',)
+    list_filter = ('email', 'name', 'role', 'is_active',)
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active')}),
+        (None, {'fields': ('email', 'name', 'password')}),
+        ('Permissions', {'fields': ('is_active',)}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'is_staff', 'is_active')}
+            'fields': ('email', 'name', 'password1', 'password2', 'is_active')}
         ),
     )
+    filter_horizontal = []
     search_fields = ('email',)
     ordering = ('email',)
 
-admin.site.register(User, UserAdmin)
+admin.site.register(Account, UserAdmin)
+admin.site.register(Admin)
 
 # Override API Key admin
 class MyApiKeyAdmin(ApiKeyAdmin):
@@ -36,9 +38,9 @@ admin.site.register(APIKey, MyApiKeyAdmin)
 
 
 class TokenAdmin(admin.ModelAdmin):
-    list_display = ('key', 'user', 'created')
+    list_display = ('key', 'user', 'created_at')
     fields = ('user',)
-    ordering = ('-created',)
+    ordering = ('-created_at',)
 
 
 admin.site.register(Token, TokenAdmin)

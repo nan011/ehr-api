@@ -1,23 +1,15 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.dispatch import receiver
 
-from apps.v1.myauth.models import User, UserManager
+from apps.v1.common.models import BaseModel
+from apps.v1.myauth.models import Account, UserManager
 from apps.v1.health_institution.models import HealthInstitution
 
 # Create your models here.
-class UserManager(UserManager):
-    def create_user(self, **kwargs):
-        user = super().create_user(
-            kwargs.pop('email'),
-            kwargs.pop('password'),
-            **kwargs,
-        )
-        user.role = User.Role.PATIENT
-        user.save()
-        return user
-
-class Patient(User):
-    objects = UserManager()
+class Patient(BaseModel):
+    id = None
+    account = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
     nik = models.CharField(max_length=16)
 
     class PhysicalActivityType(models.IntegerChoices):
@@ -49,5 +41,16 @@ class Patient(User):
     is_male = models.BooleanField()
     height = models.FloatField()
     weight = models.FloatField()
+    
+@receiver(models.signals.pre_save, sender=Patient)
+def set_role(sender, instance, *args, **kwargs):
+    instance.account.role = Account.Role.PATIENT
+    instance.account.save()
+    return instance
 
+@receiver(models.signals.pre_delete, sender=Patient)
+def remove_role(sender, instance, *args, **kwargs):
+    instance.account.role = Account.Role.UNKNOWN
+    instance.account.save()
+    return instance
 

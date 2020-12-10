@@ -9,13 +9,6 @@ from apps.v1.area.models import Province, City
 
 # Create your models here.
 class HealthInstitution(BaseModel):
-    basemodel_ptr = models.OneToOneField(
-        to = BaseModel,
-        parent_link = True,
-        related_name = "+",
-        on_delete = models.CASCADE
-    )
-
     name = models.CharField(max_length = 255)
     province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True)
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)

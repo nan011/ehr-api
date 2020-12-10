@@ -8,24 +8,12 @@ from apps.v1.common.tools import capitalize
 
 # Create your models here.
 class Province(BaseModel):
-    basemodel_ptr = models.OneToOneField(
-        to = BaseModel,
-        parent_link = True,
-        related_name = "+",
-        on_delete = models.CASCADE
-    )
     name = models.CharField(_("name"), max_length = 255)
 
     def __str__(self):
         return self.name
 
 class City(BaseModel):
-    basemodel_ptr = models.OneToOneField(
-        to = BaseModel,
-        parent_link = True,
-        related_name = "+",
-        on_delete = models.CASCADE
-    )
     province = models.ForeignKey(Province, related_name='cities', on_delete=models.CASCADE)
     name = models.CharField(_('name'), max_length = 255)
     

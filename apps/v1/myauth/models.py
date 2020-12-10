@@ -1,11 +1,14 @@
 # Create your models here.
 import binascii
 import os
+import uuid
 
 from django.db import models
-from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
+from django.core.mail import send_mail
+from django.dispatch import receiver
 
 from apps.v1.common.models import BaseModel
 
@@ -14,75 +17,100 @@ class UserManager(BaseUserManager):
     Custom user model manager where email is the unique identifiers
     for authentication instead of usernames.
     """
-    def create_user(self, email, password, **extra_fields):
+    def create_raw(self, email, password, **extra_fields):
         """
-        Create and save a User with the given email and password.
+        Create and save a Account with the given email and password.
         """
         if not email:
             raise ValueError(_('The Email must be set'))
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', False)
         extra_fields.setdefault('is_active', False)
 
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
+        return user
+
+    def create(self, **extra_fields):
+        user = self.create_raw(**extra_fields)
         user.save()
         return user
 
-    def create_superuser(self, email, password, **extra_fields):
-        """
-        Create and save a SuperUser with the given email and password.
-        """
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('is_active', True)
+class Account(AbstractBaseUser):
+    id = models.UUIDField(
+        primary_key = True,
+        default = uuid.uuid4,
+        editable = False,
+    )
+    created_at = models.DateTimeField(
+        verbose_name = "Created at",
+        auto_now_add = True,
+    )
 
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError(_('Superuser must have is_staff=True.'))
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError(_('Superuser must have is_superuser=True.'))
+    updated_at = models.DateTimeField(
+        verbose_name = "Updated at",
+        auto_now = True,
+    )
+    is_active = models.BooleanField(default = False)
 
-        # Admin
-        extra_fields['role'] = User.Role.ADMIN
-
-        return self.create_user(email, password, **extra_fields)
-
-class User(AbstractUser):
-    id = None
-    username = None
-    first_name = None
-    last_name = None
     name = models.CharField(_('name'), max_length = 255)
-    email = models.EmailField(_('email address'), unique = True, primary_key = True)
-
+    email = models.EmailField(_('email address'))
     class Role(models.IntegerChoices):
         UNKNOWN = 0, _('Unknown')
         ADMIN = 1, _('Admin')
         OPERATOR = 2, _('Operator')
         PATIENT = 3, _('Patient')
-    role = models.IntegerField(choices = Role.choices, default = Role.UNKNOWN)
-
+    role = models.IntegerField(choices = Role.choices, default=Role.UNKNOWN)
+    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
-
     objects = UserManager()
+
+    class Meta:
+        unique_together = (('email', 'role'),)
 
     def __str__(self):
         return self.email
+
+    def clean(self):
+        super().clean()
+        self.email = self.__class__.objects.normalize_email(self.email)
+
+    def email_user(self, subject, message, from_email=None, **kwargs):
+        """Send an email to this user."""
+        send_mail(subject, message, from_email, [self.email], **kwargs)
+
+class Admin(BaseModel):
+    id = None
+    account = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
+
+@receiver(models.signals.pre_save, sender=Admin)
+def set_role(sender, instance, *args, **kwargs):
+    instance.account.role = Account.Role.ADMIN
+    instance.account.save()
+    return instance
+
+
+@receiver(models.signals.pre_delete, sender=Admin)
+def remove_role(sender, instance, *args, **kwargs):
+    instance.account.role = Account.Role.UNKNOWN
+    instance.account.save()
+    return instance
 
 class Token(models.Model):
     """
     The default authorization token model.
     """
     key = models.CharField(_("Key"), max_length=40, primary_key=True)
-    user = models.OneToOneField(
-        User,
-        related_name='auth_token',
-        on_delete=models.CASCADE,
-        verbose_name=_("User"),
+    created_at = models.DateTimeField(
+        verbose_name = "Created at",
+        auto_now_add = True,
     )
-    created = models.DateTimeField(_("Created"), auto_now_add=True)
+    user = models.OneToOneField(
+        Account,
+        related_name='token',
+        on_delete=models.CASCADE,
+        verbose_name=_("Account"),
+    )
 
     class Meta:
         verbose_name = _("Token")

@@ -5,14 +5,21 @@ from rest_framework.exceptions import APIException
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_api_key.permissions import HasAPIAccess
 
+from apps.v1.common.pagination import DefaultLimitOffsetPagination
 from apps.v1.common.tools import get_object_or_none
-from apps.v1.myauth.models import User
+from apps.v1.myauth.models import Account
 from apps.v1.patient.models import Patient
 from .models import HealthRecord
 from .permissions import AuthorityPermission, RedeemPermission
 from .serializers import HealthRecordSerializer
 
 # Create your views here.
+@api_view(['GET'])
+def untaken_records(request):
+    paginator = DefaultLimitOffsetPagination()
+    result = paginator.paginate_queryset(HealthRecord.objects.filter(patient = None).values(), request)
+    return paginator.get_paginated_response(result)
+
 @api_view(['GET'])
 @permission_classes([RedeemPermission])
 def redeem(request, pk):
@@ -29,7 +36,7 @@ def redeem(request, pk):
             status = status.HTTP_403_FORBIDDEN,
         )
 
-    record.patient = request.user
+    record.patient = request.user.patient
     record.save()
 
     return Response(status = status.HTTP_204_NO_CONTENT)
@@ -44,14 +51,14 @@ class HealthRecordViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-        if self.request.user.role == User.Role.PATIENT:
-            return self.queryset.filter(patient=self.request.user)
-        elif self.request.user.role == User.Role.OPERATOR:
+        if self.request.user.role == Account.Role.PATIENT:
+            return self.queryset.filter(patient=self.request.user.id)
+        elif self.request.user.role == Account.Role.OPERATOR:
             patients_in_cluster = Patient.objects.filter(
                 health_institution=self.request.user.operator.health_institution,
             )
             return self.queryset.filter(patient__in=patients_in_cluster)
-        raise APIException("User role must be patient or operator")
+        raise APIException("Account role must be patient or operator")
 
     def partial_update(self, *args, **kwargs):
         return Response(status = status.HTTP_405_METHOD_NOT_ALLOWED)

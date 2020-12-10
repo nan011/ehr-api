@@ -1,11 +1,11 @@
 from django.db import models
 
 from apps.v1.common.models import BaseModel
-from apps.v1.myauth.models import User
+from apps.v1.patient.models import Patient
 
 # Create your models here.
 class HealthRecord(BaseModel):
-    patient = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True)
 
     do_activity = models.BooleanField()
     do_smoke = models.BooleanField()

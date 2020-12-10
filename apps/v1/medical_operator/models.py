@@ -1,23 +1,15 @@
 from django.db import models
 from apps.v1.health_institution.models import HealthInstitution
 from django.core.validators import RegexValidator
+from django.dispatch import receiver
 
-from apps.v1.myauth.models import User, UserManager
+from apps.v1.common.models import BaseModel
+from apps.v1.myauth.models import Account, UserManager
 
 # Create your models here.
-class OperatorManager(UserManager):
-    def create_user(self, **kwargs):
-        user = super().create_user(
-            kwargs.pop('email'),
-            kwargs.pop('password'),
-            **kwargs,
-        )
-        user.role = User.Role.OPERATOR
-        user.save()
-        return user
-
-class Operator(User):
-    objects = OperatorManager()
+class Operator(BaseModel):
+    id = None
+    account = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
 
     birthday = models.CharField(
         max_length=10,
@@ -39,3 +31,16 @@ class Operator(User):
         ],
     )
     
+    
+@receiver(models.signals.pre_save, sender=Operator)
+def set_role(sender, instance, *args, **kwargs):
+    instance.account.role = Account.Role.OPERATOR
+    instance.account.save()
+    return instance
+
+
+@receiver(models.signals.pre_delete, sender=Operator)
+def remove_role(sender, instance, *args, **kwargs):
+    instance.account.role = Account.Role.UNKNOWN
+    instance.account.save()
+    return instance

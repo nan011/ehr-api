@@ -4,7 +4,13 @@ from django.db import models
 from django.utils import timezone
 from django.db.models.query import QuerySet
 
+class BaseManager(models.Manager):
+    def create_raw(self, *args, **kwargs):
+        return self.model(*args, **kwargs)
+
 class BaseModel(models.Model):
+    objects = BaseManager()
+
     id = models.UUIDField(
         primary_key = True,
         default = uuid.uuid4,
@@ -20,3 +26,6 @@ class BaseModel(models.Model):
         verbose_name = "Updated at",
         auto_now = True,
     )
+
+    class Meta:
+        abstract = True

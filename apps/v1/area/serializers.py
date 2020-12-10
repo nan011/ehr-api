@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User as DjangoUser
 
 from apps.v1.common.constants import BASE_EXCLUDE
 from .models import Province, City

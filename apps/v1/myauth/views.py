@@ -1,13 +1,14 @@
+from django.utils import timezone
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
-from rest_framework import status, parsers, renderers
+from rest_framework import status, parsers, renderers, viewsets
 from rest_framework.compat import coreapi, coreschema
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 
-from apps.v1.common.tools import get_object_or_none
-from .models import Token
+from apps.v1.common.tools import get_object_or_none, get_user_or_none
+from .models import Token, Account
 from .serializers import AuthTokenSerializer
 from .errors import TokenUnauthorizedError
 from .permissions import ActivationPermission
@@ -80,6 +81,8 @@ class AuthToken(APIView):
                 token.delete()
                 
             new_token = Token.objects.create(user=user)
+            user.last_login = timezone.now()
+            user.save()
 
             return Response({
                 'token': new_token.key,
@@ -105,3 +108,54 @@ class AuthToken(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except TokenError:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    lookup_value_regex = r'(.+)'
+
+    def get_queryset(self):
+        return self.queryset
+
+    def __return_404_response(self):
+        return Response(
+            status = status.HTTP_404_NOT_FOUND,
+            data = {'detail': 'Can\'t find you in {}'.format(self.Meta.role_name.lower())},
+        )
+
+    def __get_user_pk(self, request, pk):
+        if pk.lower() == 'me':
+            user = get_user_or_none(request)
+            if user.role != self.Meta.role_type:
+                return None
+            user_id = user.pk
+            pk = user_id
+        return pk
+
+    def retrieve(self, request, pk, *args, **kwargs):
+        pk = self.__get_user_pk(request, pk)
+        if pk is None:
+            return self.__return_404_response()
+        self.kwargs['pk'] = pk
+        return super().retrieve(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if request.method == 'PATCH':
+            return super().update(request, *args, **kwargs)
+
+        return Response(status = status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, pk=None, *args, **kwargs):
+        pk = self.__get_user_pk(request, pk)
+        if pk is None:
+            return self.__return_404_response()
+        self.kwargs['pk'] = pk
+
+        return super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, pk=None, *args, **kwargs):
+        pk = self.__get_user_pk(request, pk)
+        if pk is None:
+            return self.__return_404_response()
+        self.kwargs['pk'] = pk
+
+        return super().destroy(request, *args, **kwargs)
