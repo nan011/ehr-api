@@ -46,6 +46,7 @@ class MedicineViewSet(viewsets.ModelViewSet):
         return self.queryset
 
     def create(self, request, *args, **kwargs):
+        request.data
         request._full_data._mutable = True
         request._full_data.update({'patient_id': request.user.id})
         request._full_data._mutable = False
