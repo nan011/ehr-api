@@ -119,7 +119,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def __return_404_response(self):
         return Response(
             status = status.HTTP_404_NOT_FOUND,
-            data = {'detail': 'Can\'t find you in {}'.format(self.Meta.role_name.lower())},
+            data = {'detail': 'Can\'t find you as {}'.format(self.Meta.role_name.lower())},
         )
 
     def __get_user_pk(self, request, pk):
