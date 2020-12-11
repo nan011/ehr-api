@@ -22,3 +22,9 @@ class PatientViewSet(UserViewSet):
     class Meta:
         role_type = Account.Role.PATIENT
         role_name = 'patient'
+
+    def retrieve(self, request, pk, *args, **kwargs):
+        if request.user.role == Account.Role.PATIENT and pk != "me":
+            return Respone(status=status.HTTP_403_FORBIDDEN)
+        
+        return super(__class__, self).retrieve(request, pk, *args, **kwargs)
