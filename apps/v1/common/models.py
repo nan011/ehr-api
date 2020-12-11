@@ -1,5 +1,6 @@
 import uuid
 
+from django.forms.models import model_to_dict
 from django.db import models
 from django.utils import timezone
 from django.db.models.query import QuerySet
@@ -26,6 +27,9 @@ class BaseModel(models.Model):
         verbose_name = "Updated at",
         auto_now = True,
     )
+
+    def values(self):
+        return model_to_dict(self)
 
     class Meta:
         abstract = True

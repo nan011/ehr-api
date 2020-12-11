@@ -10,7 +10,6 @@ from apps.v1.area.models import Province, City
 # Create your models here.
 class HealthInstitution(BaseModel):
     name = models.CharField(max_length = 255)
-    province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True)
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
     address = models.TextField(max_length = 255)
     email = models.EmailField()
@@ -18,8 +17,3 @@ class HealthInstitution(BaseModel):
 
     def __str__(self):
         return self.name
-
-@receiver(pre_save, sender=HealthInstitution)
-def check_province_and_city_consistency(sender, instance, *args, **kwargs):
-    if instance.city.province.id != instance.province.id:
-        raise ValidationError("{} doesn't belong to {}".format(instance.city.name, instance.province.name))

@@ -42,7 +42,7 @@ class BaseSerializer(serializers.ModelSerializer):
                 if groups is not None:
                     new_field_name = groups[1]
                     SubModelClass = self.sub_model_classes_dict.get(camel_case(new_field_name))
-                    setattr(instance, field_name, SubModelClass.objects.get(pk = validated_data.pop(field_name)))
+                    setattr(instance, new_field_name, SubModelClass.objects.get(pk = validated_data.pop(field_name)))
             elif isinstance(field, serializers.BaseSerializer):
                 SerializerClass = field.__class__
 
