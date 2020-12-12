@@ -9,11 +9,11 @@ from apps.v1.area.models import Province, City
 
 # Create your models here.
 class HealthInstitution(BaseModel):
-    name = models.CharField(max_length = 255)
-    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
+    name = models.CharField(max_length = 255, unique=True)
     address = models.TextField(max_length = 255)
-    email = models.EmailField()
-    website = models.URLField()
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null = True)
+    email = models.EmailField(null = True)
+    website = models.URLField(null = True)
 
     def __str__(self):
         return self.name

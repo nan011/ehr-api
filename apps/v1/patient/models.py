@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from apps.v1.common.models import BaseModel
 from apps.v1.myauth.models import Account, UserManager
@@ -10,37 +11,37 @@ from apps.v1.health_institution.models import HealthInstitution
 class Patient(BaseModel):
     id = None
     account = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
-    nik = models.CharField(max_length=16)
+    nik = models.CharField(max_length=16, null = True)
 
     class PhysicalActivityType(models.IntegerChoices):
-        UNKNOWN = 0, _('Unknown')
-        EXTREMELY_INACTIVE = 1, _('Extremely Inactive')
-        SEDENTARY = 2, _('Sedentary')
-        MODERATELY_ACTIVE = 3, _('Moderately Active')
-        VIGOROUSLY_ACTIVE = 4, _('Vigorously Active')
-        EXTREMELY_ACTIVE = 5, _('Extremely Active')
+        LIGHT = 1, _('Light')
+        MODERATE = 2, _('Moderate')
+        HEAVY = 3, _('Heavy')
+        VERY_HEAVY = 4, _('Very Heavy')
     physical_activity_type = models.IntegerField(
         choices = PhysicalActivityType.choices,
-        default = PhysicalActivityType.UNKNOWN,
+        default = PhysicalActivityType.LIGHT,
     )
 
-    smoke_amount = models.PositiveIntegerField()
-    
-    # class FamilyPosition(models.IntegerChoices):
-    #     FATHER = 1, _('Father')
-    #     MOTHER = 2, _('Mother')
-    #     GRANDFATHER = 3, _('Grandfather')
-    #     GRANDMOTHER = 4, _('Grandmother')
-    # family_position = models.IntegerField(
-    #     choices = FamilyPosition.choices
-    #     default = FamilyPosition.FATHER
-    # )
+    smoke_amount = models.PositiveIntegerField(default = 0)
     # medical_history = models.TextField(max_length = 2000)
 
     health_institution = models.ForeignKey(HealthInstitution, on_delete=models.CASCADE)
     is_male = models.BooleanField()
-    height = models.FloatField()
-    weight = models.FloatField()
+    height = models.FloatField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(999),
+        ],
+        default = 0,
+    )
+    weight = models.FloatField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(999),
+        ],
+        default = 0,
+    )
     
 @receiver(models.signals.pre_save, sender=Patient)
 def set_role(sender, instance, *args, **kwargs):
