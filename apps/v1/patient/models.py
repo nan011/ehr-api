@@ -24,7 +24,6 @@ class Patient(BaseModel):
     )
 
     smoke_amount = models.PositiveIntegerField(default = 0)
-    # medical_history = models.TextField(max_length = 2000)
 
     health_institution = models.ForeignKey(HealthInstitution, on_delete=models.CASCADE)
     is_male = models.BooleanField()
