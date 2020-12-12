@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
+from django.http import QueryDict
 from rest_framework import serializers
 
 from apps.v1.common.serializers import BaseSerializer
@@ -21,12 +22,12 @@ class AccountSerializer(BaseSerializer):
             },
         }
 
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data, *args, **kwargs):
         new_password = validated_data.pop("password", None)
         if new_password is not None:
             instance.set_password(new_password)
 
-        return super(__class__, self).update(instance, validated_data)
+        return super(__class__, self).update(instance, validated_data, *args, **kwargs)
 
     def to_representation(self, instance, *args, **kwargs):
         representation = {
@@ -56,18 +57,13 @@ class UserSerializer(BaseSerializer):
         return super(__class__, self).create(validated_data)
 
     def update(self, instance, validated_data):
+        validated_data.pop('email', None)
         data = {
             'name': validated_data.pop('name', None),
-            'email': validated_data.pop('email', None),
             'password': validated_data.pop('password', None),
         }
         data = {key: value for (key, value) in data.items() if value is not None}
-        account_serializer = AccountSerializer(
-            data = data,
-            partial = True,
-        )
-        account_serializer.is_valid(raise_exception=True)
-        validated_data['account'] = account_serializer.save()
+        validated_data['account'] = data
 
         return super(__class__, self).update(instance, validated_data)
 

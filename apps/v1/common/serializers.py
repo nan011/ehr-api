@@ -54,11 +54,11 @@ class BaseSerializer(serializers.ModelSerializer):
                     getattr(instance, field_name),
                     data = instance_child_data,
                     many = False,
+                    partial = True,
                 )
                 serializer_field.is_valid(raise_exception = True)
                 serializer_field.save()
             else:
                 setattr(instance, field_name, validated_data.get(field_name, getattr(instance, field_name)))
-        
         instance.save()
         return instance

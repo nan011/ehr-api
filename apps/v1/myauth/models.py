@@ -7,6 +7,7 @@ from django.db import models
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
+from django.forms.models import model_to_dict
 from django.core.mail import send_mail
 from django.dispatch import receiver
 
@@ -74,6 +75,9 @@ class Account(AbstractBaseUser):
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
+
+    def values(self):
+        return model_to_dict(self)
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
