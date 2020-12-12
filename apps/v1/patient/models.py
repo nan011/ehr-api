@@ -18,7 +18,7 @@ class Patient(BaseModel):
         MODERATE = 2, _('Moderate')
         HEAVY = 3, _('Heavy')
         VERY_HEAVY = 4, _('Very Heavy')
-    physical_activity_type = models.IntegerField(
+    physical_activity = models.IntegerField(
         choices = PhysicalActivityType.choices,
         default = PhysicalActivityType.LIGHT,
     )

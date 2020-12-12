@@ -25,9 +25,9 @@ class PatientSerializer(UserSerializer):
 
     def to_representation(self, instance, *args, **kwargs):
         representation = {
-            'physical_activity_type': {
-                'code': instance.physical_activity_type,
-                'label': instance.get_physical_activity_type_display(),
+            'physical_activity': {
+                'code': instance.physical_activity,
+                'label': instance.get_physical_activity_display(),
             }
         }
 
