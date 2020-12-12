@@ -55,7 +55,10 @@ class MedicineViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk, *args, **kwargs):
         return Response(status = status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def update(self, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
+        if request.method == 'PATCH':
+            return super().update(request, *args, **kwargs)
+
         return Response(status = status.HTTP_405_METHOD_NOT_ALLOWED)
     
     def destroy(self, *args, **kwargs):
