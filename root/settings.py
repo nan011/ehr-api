@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'apps.v1.medicine',
     'apps.v1.health_record',
     'apps.v1.medical_history',
+    'apps.v1.lung_sound_classification',
 ]
 
 MIDDLEWARE = [
