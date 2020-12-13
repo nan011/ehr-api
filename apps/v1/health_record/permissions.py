@@ -6,9 +6,8 @@ class AuthorityPermission(permissions.BasePermission):
         if request.method == 'GET':
             return request.user.role == Account.Role.OPERATOR or\
                 request.user.role == Account.Role.PATIENT
+        
+        if request.method == 'POST':
+            return request.user.role == Account.Role.PATIENT
 
         return True
-
-class RedeemPermission(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.role == Account.Role.PATIENT

@@ -6,5 +6,6 @@ router = DefaultRouter()
 router.register('', views.LungSoundClassificationViewSet, 'lung-sound-classifications')
 
 urlpatterns = [
-    path('', include(router.urls))
+    # path('untaken/', views.untaken_classifications),
+    path('', include(router.urls)),
 ]

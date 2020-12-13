@@ -1,0 +1,1 @@
+RESERVED_IDS = range(0, 9999)

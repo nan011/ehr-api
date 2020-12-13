@@ -7,15 +7,33 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 
 from apps.v1.common.models import BaseModel
+from apps.v1.health_record.models import HealthRecord
+from .constants import RESERVED_IDS
+
 
 # Create your models here.
-class LungSoundClassification(BaseModel):
-    reserved_id = models.PositiveIntegerField(
+class ReservedID(models.Model):
+    id = models.PositiveSmallIntegerField(
         validators = [
-            MinValueValidator(0),
-            MaxValueValidator(9999),
+            MinValueValidator(RESERVED_IDS[0]),
+            MaxValueValidator(RESERVED_IDS[-1]),
         ],
-        unique=True,
+        primary_key = True,
+    )
+
+class LungSoundClassification(BaseModel):
+    reserved_id = models.OneToOneField(
+        ReservedID,
+        related_name = "lung_sound_classification",
+        on_delete=models.SET_NULL,
+        null = True,
+    )
+    health_record = models.OneToOneField(
+        HealthRecord,
+        related_name = "lung_sound_classification",
+        on_delete=models.SET_NULL,
+        null = True,
+        blank = True,
     )
 
     class ResultType(models.IntegerChoices):
@@ -32,14 +50,13 @@ class LungSoundClassification(BaseModel):
     result = models.PositiveSmallIntegerField(choices=ResultType.choices)
 
 @receiver(models.signals.pre_save, sender=LungSoundClassification)
-def generate_reserved_id(sender, instance, *args, **kwargs):
+def book_reserved_id(sender, instance, *args, **kwargs):
     if instance._state.adding:
-        while True:
-            try:
-                instance.reserved_id = random.randint(0, 9999)
-                instance.full_clean()
-            except ValidationError as e:
-                if e.error_dict['reserved_id'] is None:
-                    break
-            else:
-                break
+        instance.reserved_id = ReservedID.objects.filter(lung_sound_classification = None)[0]
+
+@receiver(models.signals.pre_save, sender=LungSoundClassification)
+def unbook_reserved_id(sender, instance, *args, **kwargs):
+    if instance.health_record is not None:
+        instance.reserved_id = None
+
+    

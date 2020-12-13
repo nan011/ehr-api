@@ -16,7 +16,7 @@ RANGE_0_999 = [
 
 # Create your models here.
 class HealthRecord(BaseModel):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
 
     do_activity = models.BooleanField(default=False)
     do_smoke = models.BooleanField(default=False)

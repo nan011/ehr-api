@@ -12,6 +12,9 @@ class LungSoundClassificationSerializer(BaseSerializer):
         extra_kwargs = {
             'reserved_id': {
                 'read_only': True,
+            },
+            'health_record': {
+                'read_only': True,
             }
         }
 

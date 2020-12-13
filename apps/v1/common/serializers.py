@@ -15,7 +15,7 @@ class BaseSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         ModelClass = self.Meta.model
-
+        
         for field_name in list(validated_data.keys()):
             field = self.fields[field_name]
             if isinstance(field, serializers.UUIDField):
