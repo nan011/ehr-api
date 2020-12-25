@@ -40,6 +40,7 @@ class LungSoundClassification(BaseModel):
         UNCLASSIFIED = 99, _('Unclassified')
         CRACKLES = 1, _('Crackles')
         WHEEZING = 2, _('Wheezing')
+        WHEEZING_AND_CRACKLES = 3, _('Wheezing and Crackles')
 
     likelihood_percentage = models.FloatField(
         validators = [
