@@ -10,6 +10,10 @@ class OperatorSerializer(UserSerializer):
     sub_model_classes = [HealthInstitution]
     health_institution_id = serializers.UUIDField(write_only=True)
     health_institution = HealthInstitutionFirstLayerSerializer(many=False, read_only=True)
+
+    def create(self, validated_data):
+        validated_data['is_active'] = False
+        return super(__class__, self).create(validated_data)
     
     class Meta:
         model = Operator

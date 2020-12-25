@@ -11,9 +11,6 @@ class AccountSerializer(BaseSerializer):
         model = Account
         exclude = ('created_at', 'updated_at')
         extra_kwargs = {
-            'is_active': {
-                'read_only': True
-            },
             'role': {
                 'read_only': True
             },
@@ -53,6 +50,7 @@ class UserSerializer(BaseSerializer):
             'name': validated_data.pop('name'),
             'email': validated_data.pop('email'),
             'password': validated_data.pop('password'),
+            'is_active': validated_data.pop('is_active'),
         }
         return super(__class__, self).create(validated_data)
 

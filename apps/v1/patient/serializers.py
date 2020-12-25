@@ -23,6 +23,10 @@ class PatientSerializer(UserSerializer):
         model = Patient
         fields = '__all__'
 
+    def create(self, validated_data):
+        validated_data['is_active'] = True
+        return super(__class__, self).create(validated_data)
+
     def to_representation(self, instance, *args, **kwargs):
         representation = {
             'physical_activity': {
