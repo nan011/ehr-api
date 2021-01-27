@@ -42,12 +42,13 @@ class LungSoundClassification(BaseModel):
         WHEEZING = 2, _('Wheezing')
         WHEEZING_AND_CRACKLES = 3, _('Wheezing and Crackles')
 
-    likelihood_percentage = models.FloatField(
+    min_support = models.FloatField(
         validators = [
-            MinValueValidator(0),
-            MaxValueValidator(100),
-        ]
+            MinValueValidator(0)
+        ],
+        default=0
     )
+    
     result = models.PositiveSmallIntegerField(choices=ResultType.choices)
 
 @receiver(models.signals.pre_save, sender=LungSoundClassification)
