@@ -1,10 +1,7 @@
-import random
-
-from django.db import models, utils
+from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ValidationError
 
 from apps.v1.common.models import BaseModel
 from apps.v1.health_record.models import HealthRecord

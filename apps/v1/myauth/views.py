@@ -1,5 +1,4 @@
 from django.utils import timezone
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import status, parsers, renderers, viewsets
 from rest_framework.compat import coreapi, coreschema
@@ -8,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 
 from apps.v1.common.tools import get_object_or_none, get_user_or_none
-from .models import Token, Account
+from .models import Token
 from .serializers import AuthTokenSerializer
 from .errors import TokenUnauthorizedError
 from .permissions import ActivationPermission
@@ -106,7 +105,7 @@ class AuthToken(APIView):
                 token.delete()
 
             return Response(status=status.HTTP_204_NO_CONTENT)
-        except TokenError:
+        except Exception:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -125,7 +124,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def __get_user_pk(self, request, pk):
         if pk.lower() == 'me':
             user = get_user_or_none(request)
-            if user.role != self.Meta.role_type:
+            if getattr(user, self.Meta.role_type) is not None:
                 return None
             user_id = user.pk
             pk = user_id

@@ -8,8 +8,8 @@ from .models import Account, Admin, Token
 
 class UserAdmin(DjangoUserAdmin):
     model = Account
-    list_display = ('email', 'name', 'role', 'is_active',)
-    list_filter = ('email', 'name', 'role', 'is_active',)
+    list_display = ('email', 'name', 'is_active',)
+    list_filter = ('email', 'name', 'is_active',)
     fieldsets = (
         (None, {'fields': ('email', 'name', 'password')}),
         ('Permissions', {'fields': ('is_active',)}),

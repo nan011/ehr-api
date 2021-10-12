@@ -7,10 +7,10 @@ from apps.v1.myauth.models import Account
 class ActivationPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         pk = request.resolver_match.kwargs.get('pk')
-        if request.user.role == Account.Role.ADMIN:
-            targeted_user = get_object_or_none(Account, pk = pk, role = Account.Role.OPERATOR)
-        elif request.user.role == Account.Role.OPERATOR:
-            targeted_user = get_object_or_none(Account, pk = pk, role = Account.Role.PATIENT)
+        if request.user.admin is not None:
+            targeted_user = get_object_or_none(Account, pk = pk)
+        elif request.user.operator is not None:
+            targeted_user = get_object_or_none(Account, pk = pk)
 
         if targeted_user is None:
             raise ValidationError("A targeted user is unknown")

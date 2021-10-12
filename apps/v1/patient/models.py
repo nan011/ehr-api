@@ -11,7 +11,7 @@ from apps.v1.health_institution.models import HealthInstitution
 class Patient(BaseModel):
     id = None
     account = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
-    nik = models.CharField(max_length=16, null = True)
+    nik = models.CharField(max_length=16, null=True, unique=True)
 
     class PhysicalActivityType(models.IntegerChoices):
         LIGHT = 1, _('Light')
@@ -41,12 +41,9 @@ class Patient(BaseModel):
         ],
         default = 0,
     )
-    
-@receiver(models.signals.pre_save, sender=Patient)
-def set_role(sender, instance, *args, **kwargs):
-    instance.account.role = Account.Role.PATIENT
-    instance.account.save()
-    return instance
+
+    def __str__(self):
+        return self.account.name
 
 @receiver(models.signals.post_delete, sender=Patient)
 def remove_account(sender, instance, *args, **kwargs):

@@ -30,13 +30,9 @@ class Operator(BaseModel):
             ),
         ],
     )
-    
-    
-@receiver(models.signals.pre_save, sender=Operator)
-def set_role(sender, instance, *args, **kwargs):
-    instance.account.role = Account.Role.OPERATOR
-    instance.account.save()
-    return instance
+
+    def __str__(self):
+        return self.account.name
 
 
 @receiver(models.signals.post_delete, sender=Operator)

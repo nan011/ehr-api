@@ -11,9 +11,6 @@ class AccountSerializer(BaseSerializer):
         model = Account
         exclude = ('created_at', 'updated_at')
         extra_kwargs = {
-            'role': {
-                'read_only': True
-            },
             'password': {
                 'write_only': True
             },
@@ -26,18 +23,6 @@ class AccountSerializer(BaseSerializer):
 
         return super(__class__, self).update(instance, validated_data, *args, **kwargs)
 
-    def to_representation(self, instance, *args, **kwargs):
-        representation = {
-            'role': {
-                'code': instance.role,
-                'label': instance.get_role_display(),
-            },
-        }
-
-        return {
-            **super().to_representation(instance, *args, **kwargs),
-            **representation,
-        }
 
 class UserSerializer(BaseSerializer):
     email = serializers.EmailField(write_only=True)
@@ -77,16 +62,17 @@ class AuthTokenSerializer(serializers.Serializer):
         style={'input_type': 'password'},
         trim_whitespace=False
     )
-    role = serializers.IntegerField()
 
     def validate(self, attrs):
-        role = attrs.get('role')
         email = attrs.get('email')
         password = attrs.get('password')
 
         if email and password:
-            user = authenticate(request=self.context.get('request'),
-                                email=email, password=password, role=role)
+            user = authenticate(
+                request=self.context.get('request'),
+                email=email,
+                password=password,
+            )
 
             # The authenticate call simply returns None for is_active=False
             # users. (Assuming the default ModelBackend authentication
@@ -100,3 +86,4 @@ class AuthTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+    

@@ -4,7 +4,6 @@ import os
 import uuid
 
 from django.db import models
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
 from django.forms.models import model_to_dict
@@ -55,19 +54,10 @@ class Account(AbstractBaseUser):
 
     name = models.CharField(_('name'), max_length = 255)
     email = models.EmailField(_('email address'))
-    class Role(models.IntegerChoices):
-        UNKNOWN = 0, _('Unknown')
-        ADMIN = 1, _('Admin')
-        OPERATOR = 2, _('Operator')
-        PATIENT = 3, _('Patient')
-    role = models.IntegerField(choices = Role.choices, default=Role.UNKNOWN)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
     objects = UserManager()
-
-    class Meta:
-        unique_together = (('email', 'role'),)
 
     def __str__(self):
         return self.email
@@ -87,11 +77,8 @@ class Admin(BaseModel):
     id = None
     account = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
 
-@receiver(models.signals.pre_save, sender=Admin)
-def set_role(sender, instance, *args, **kwargs):
-    instance.account.role = Account.Role.ADMIN
-    instance.account.save()
-    return instance
+    def __str__(self):
+        return self.account.name
 
 
 @receiver(models.signals.post_delete, sender=Admin)

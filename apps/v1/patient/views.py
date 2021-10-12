@@ -1,10 +1,7 @@
-from django.core.exceptions import ValidationError
-from rest_framework import viewsets, status
+from rest_framework import status
 from rest_framework_api_key.permissions import HasAPIAccess
 from rest_framework.response import Response
 
-from apps.v1.common.tools import get_user_or_none
-from apps.v1.myauth.models import Account
 from apps.v1.myauth.views import UserViewSet
 from .serializers import PatientSerializer
 from .models import Patient
@@ -20,11 +17,11 @@ class PatientViewSet(UserViewSet):
     ]
 
     class Meta:
-        role_type = Account.Role.PATIENT
+        role_type = 'patient'
         role_name = 'patient'
 
     def retrieve(self, request, pk, *args, **kwargs):
-        if request.user.role == Account.Role.PATIENT and pk != "me":
-            return Respone(status=status.HTTP_403_FORBIDDEN)
+        if request.user.patient is not None and pk != "me":
+            return Response(status=status.HTTP_403_FORBIDDEN)
         
         return super(__class__, self).retrieve(request, pk, *args, **kwargs)
