@@ -5,4 +5,4 @@ from apps.v1.myauth.models import Account
 
 class AuthorityPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.user.patient is not None
+        return request.user.is_patient

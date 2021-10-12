@@ -21,7 +21,7 @@ class PatientViewSet(UserViewSet):
         role_name = 'patient'
 
     def retrieve(self, request, pk, *args, **kwargs):
-        if request.user.patient is not None and pk != "me":
+        if request.user.is_patient and pk != "me":
             return Response(status=status.HTTP_403_FORBIDDEN)
         
         return super(__class__, self).retrieve(request, pk, *args, **kwargs)

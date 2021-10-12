@@ -62,6 +62,26 @@ class Account(AbstractBaseUser):
     def __str__(self):
         return self.email
 
+    def _check_role(self, role_name) -> bool:
+        try:
+            return getattr(self, role_name) is not None
+        except Exception:
+            return False
+
+    @property
+    def is_admin(self) -> bool:
+        return self._check_role('admin')
+
+        
+    @property
+    def is_operator(self) -> bool:
+        return self._check_role('operator')
+
+        
+    @property
+    def is_patient(self) -> bool:
+        return self._check_role('patient')
+
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)

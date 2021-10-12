@@ -6,4 +6,4 @@ class AuthorityPermission(permissions.BasePermission):
         if request.method == 'GET':
             return True
             
-        return request.user.admin is not None
+        return request.user.is_admin

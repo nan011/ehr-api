@@ -5,8 +5,10 @@ from rest_framework.compat import coreapi, coreschema
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework_api_key.permissions import HasAPIAccess
 
 from apps.v1.common.tools import get_object_or_none, get_user_or_none
+from apps.v1.patient.permissions import AuthorityPermission
 from .models import Token
 from .serializers import AuthTokenSerializer
 from .errors import TokenUnauthorizedError
@@ -35,7 +37,7 @@ def deactivate(request, *args, **kwargs):
 
 class AuthToken(APIView):
     throttle_classes = ()
-    permission_classes = ()
+    permission_classes = (HasAPIAccess,)
     parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)
     renderer_classes = (renderers.JSONRenderer,)
     serializer_class = AuthTokenSerializer
@@ -90,24 +92,13 @@ class AuthToken(APIView):
             return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
 
     def delete(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            data=request.data,
-            context={'request': request}
-        )
-        try:
-            if not serializer.is_valid():
-                raise TokenUnauthorizedError()
-                
-            user = serializer.validated_data['user']
-            token = get_object_or_none(Token, user=user)
+        user = request.user
+        token = get_object_or_none(Token, user=user)
 
-            if token != None:
-                token.delete()
+        if token is not None:
+            token.delete()
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Exception:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class UserViewSet(viewsets.ModelViewSet):
     lookup_value_regex = r'(.+)'

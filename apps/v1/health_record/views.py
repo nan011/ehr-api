@@ -24,9 +24,9 @@ class HealthRecordViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-        if self.request.user.patient is not None:
+        if self.request.user.is_patient:
             return self.queryset.filter(patient=self.request.user.id)
-        elif self.request.user.operator is not None:
+        elif self.request.user.is_operator:
             patients_in_cluster = Patient.objects.filter(
                 health_institution=self.request.user.operator.health_institution,
             )
