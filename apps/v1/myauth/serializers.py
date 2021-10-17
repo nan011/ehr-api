@@ -87,3 +87,12 @@ class AuthTokenSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
     
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = (
+            'name',
+            'email',
+            'is_active',
+        )
+        
