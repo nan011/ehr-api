@@ -100,7 +100,7 @@ class AuthToken(APIView):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class ProfileAPI(APIView):
+class AccountAPI(APIView):
     serializer_class = ProfileSerializer
 
     def get(self, request, *args, **kwargs):
