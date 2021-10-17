@@ -10,7 +10,7 @@ from rest_framework_api_key.permissions import HasAPIAccess
 from apps.v1.common.tools import get_object_or_none, get_user_or_none
 from apps.v1.patient.permissions import AuthorityPermission
 from .models import Token
-from .serializers import AuthTokenSerializer
+from .serializers import AuthTokenSerializer, ProfileSerializer
 from .errors import TokenUnauthorizedError
 from .permissions import ActivationPermission
 
@@ -99,6 +99,15 @@ class AuthToken(APIView):
             token.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ProfileAPI(APIView):
+    serializer_class = ProfileSerializer
+
+    def get(self, request, *args, **kwargs):
+        user = get_user_or_none(request)
+
+        output_serializer = ProfileSerializer(user)
+        return Response(output_serializer.data)
 
 class UserViewSet(viewsets.ModelViewSet):
     lookup_value_regex = r'(.+)'
